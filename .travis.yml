@@ -1,0 +1,21 @@
+language: java
+
+jdk:
+  - oraclejdk8
+  - openjdk7
+
+before_cache:
+  # Make the cache stable between builds by removing build output
+  - rm -rf $HOME/.m2/repository/cc/shanruifeng
+
+cache:
+  directories:
+    - $HOME/.m2/repository
+
+install:
+  - wget http://www.datanucleus.org/downloads/maven2/javax/jdo/jdo2-api/2.3-ec/jdo2-api-2.3-ec.jar -O $HOME/jdo2-api-2.3-ec.jar
+  - mvn install:install-file -DgroupId=javax.jdo -DartifactId=jdo2-api -Dversion=2.3-ec -Dpackaging=jar -Dfile=$HOME/jdo2-api-2.3-ec.jar
+
+script:
+  - jdk_switcher use oraclejdk8
+  - mvn clean package
