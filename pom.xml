@@ -27,13 +27,13 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.build.targetJdk>1.7</project.build.targetJdk>
+        <project.build.targetJdk>1.8</project.build.targetJdk>
         <project.report.outputEncoding>UTF-8</project.report.outputEncoding>
         <project.report.inputEncoding>UTF-8</project.report.inputEncoding>
 
-        <hive.version>0.11.0</hive.version>
+        <hive.version>1.0.0</hive.version>
         <joda.time.version>2.7</joda.time.version>
-        <hadoop.version>2.2.0</hadoop.version>
+        <hadoop.version>2.6.0</hadoop.version>
         <pinyin4j.version>2.5.0</pinyin4j.version>
         <guava.version>18.0</guava.version>
         <commons-codec.version>1.10</commons-codec.version>
@@ -157,6 +157,12 @@
             <artifactId>hive-jdbc</artifactId>
             <scope>provided</scope>
         </dependency>
+        
+       <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-exec</artifactId>
+            <version>${hive.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.hadoop</groupId>
@@ -229,6 +235,22 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+
+<dependency>
+<groupId>jdk.tools</groupId>
+<artifactId>jdk.tools</artifactId>
+<version>1.6</version>
+<scope>system</scope>
+<systemPath>${JAVA_HOME}/lib/tools.jar</systemPath>
+</dependency>
+      
+        <dependency>
+		  <groupId>com.github.aaronshan</groupId>
+		  <artifactId>hive-third-functions</artifactId>
+		  <version>2.2.1</version>
+		</dependency>
+        
+        
     </dependencies>
 
     <build>

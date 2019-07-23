@@ -21,22 +21,17 @@ public class ConfigUtils {
 	
 	
 	
-	public static Map<String, ChinaIdArea> loadIp2regionDb() {
+	public static Map<String, ChinaIdArea> loadIp2regionDb() throws IOException {
         String fileName = "/ip2region.db";
         
 
         
         Map<String, ChinaIdArea> map = Maps.newHashMap();
-        try {
-            List<String> list = loadFile(fileName);
-            for (String line : list) {
-                String[] results = line.split("\t", 4);
-                map.put(results[0], new ChinaIdArea(results[1], results[2], results[3]));
-            }
-        } catch (IOException e) {
-            logger.error("get china id card map error. error is {}.", e);
-            return map;
-        }
+        List<String> list = null;// loadFile(fileName);
+		for (String line : list) {
+		    String[] results = line.split("\t", 4);
+		    map.put(results[0], new ChinaIdArea(results[1], results[2], results[3]));
+		}
 
         return map;
     }
