@@ -34,10 +34,8 @@ public class Decrypt {
 	            Cipher c1 = Cipher.getInstance("DESede");    
 	            c1.init(Cipher.DECRYPT_MODE, deskey);    
 	            String pwd = new String(c1.doFinal(src));  
-//	            return c1.doFinal(src);    
 	            return pwd;  
 	        } catch (java.security.NoSuchAlgorithmException e1) {    
-	            // TODO: handle exception    
 	            e1.printStackTrace();    
 	        }catch(javax.crypto.NoSuchPaddingException e2){    
 	            e2.printStackTrace();    

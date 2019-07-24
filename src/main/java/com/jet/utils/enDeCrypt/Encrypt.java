@@ -8,7 +8,7 @@ import org.apache.commons.codec.binary.Base64;
 
 
 public class Encrypt {
-	
+
 	
 	public static String md5(String text) {
         return DigestUtils.md5Hex(text);
