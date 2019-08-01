@@ -4,7 +4,7 @@ import org.apache.hadoop.hive.ql.exec.Description;
 import org.apache.hadoop.hive.ql.exec.UDF;
 import org.apache.hadoop.io.Text;
 
-import com.jet.utils.enDeCrypt.Encrypt;
+import com.jet.utils.enDeCrypt.EncryptUtils;
 
 /**
  * @author caihm
@@ -30,7 +30,7 @@ public class UDFBase64 extends UDF {
             return null;
         }
 
-        result.set(Encrypt.base64((text.toString())));
+        result.set(EncryptUtils.base64((text.toString())));
         return result;
     }
 }

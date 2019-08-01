@@ -4,8 +4,8 @@ import org.apache.hadoop.hive.ql.exec.Description;
 import org.apache.hadoop.hive.ql.exec.UDF;
 import org.apache.hadoop.io.Text;
 
-import com.jet.utils.enDeCrypt.Constants;
-import com.jet.utils.enDeCrypt.Encrypt;
+import com.jet.utils.enDeCrypt.ConstantsEnDeCrypt;
+import com.jet.utils.enDeCrypt.EncryptUtils;
 
 /**
  * @author ruifeng.shan
@@ -28,7 +28,7 @@ public class UDFDes extends UDF {
      * @return des 加密.
      */
     public Text evaluate(Text text) {
-        return evaluate(text,new Text(Constants.DES3_KEY));
+        return evaluate(text,new Text(ConstantsEnDeCrypt.DES3_KEY));
     }
     
     /**
@@ -45,7 +45,7 @@ public class UDFDes extends UDF {
         	return null;
         }
 
-        result.set(Encrypt.des3( key.toString() , text.toString() ) );
+        result.set(EncryptUtils.des3( key.toString() , text.toString() ) );
         return result;
     }
     

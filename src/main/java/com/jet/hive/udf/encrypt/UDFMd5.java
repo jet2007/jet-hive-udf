@@ -4,7 +4,7 @@ import org.apache.hadoop.hive.ql.exec.Description;
 import org.apache.hadoop.hive.ql.exec.UDF;
 import org.apache.hadoop.io.Text;
 
-import com.jet.utils.enDeCrypt.Encrypt;
+import com.jet.utils.enDeCrypt.EncryptUtils;
 
 /**
  * Created by ruifengshan on 16/3/18.
@@ -28,7 +28,7 @@ public class UDFMd5 extends UDF {
         if (text == null) {
             return null;
         }
-        result.set(Encrypt.md5((text.toString())));
+        result.set(EncryptUtils.md5((text.toString())));
         return result;
     }
 }

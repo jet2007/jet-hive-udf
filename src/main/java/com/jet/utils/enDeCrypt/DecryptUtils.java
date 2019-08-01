@@ -5,7 +5,7 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-public class Decrypt {
+public class DecryptUtils {
 
 	public static String base64(String text) {
 		byte[] b = Base64.decodeBase64(text.getBytes());
@@ -24,7 +24,7 @@ public class Decrypt {
 	    */   
 	    public static String des3(String key, String desStr){    
 	        Base64 base64 = new Base64();  
-	        byte[] keybyte = Encrypt.hex(key);  
+	        byte[] keybyte = EncryptUtils.hex(key);  
 	        byte[] src = base64.decode(desStr);  
 	                  
 	        try {    

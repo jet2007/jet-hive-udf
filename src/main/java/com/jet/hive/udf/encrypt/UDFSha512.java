@@ -4,7 +4,7 @@ import org.apache.hadoop.hive.ql.exec.Description;
 import org.apache.hadoop.hive.ql.exec.UDF;
 import org.apache.hadoop.io.Text;
 
-import com.jet.utils.enDeCrypt.Encrypt;
+import com.jet.utils.enDeCrypt.EncryptUtils;
 
 /**
  * @author ruifeng.shan
@@ -31,7 +31,7 @@ public class UDFSha512 extends UDF {
             return null;
         }
 
-        result.set(Encrypt.sha512((text.toString())));
+        result.set(EncryptUtils.sha512((text.toString())));
         return result;
     }
 }

@@ -7,7 +7,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;  
 
 
-public class Encrypt {
+public class EncryptUtils {
 
 	
 	public static String md5(String text) {
