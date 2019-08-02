@@ -98,13 +98,20 @@ public class GooglePlayStoreSupportedDeviceBuild {
     private void readResouceFile()  {
     	
     	try {
+    		System.out.println("##################################1111111");
+    		URL u1 = GooglePlayStoreSupportedDeviceBuild.class.getResource("/");
+    		System.out.println(u1);
+    		
+    		URL u2 = GooglePlayStoreSupportedDeviceBuild.class.getResource("/"+ConstantsUserAgent.SUPPORT_DEVICE_RESOURCE_FILE);
+    		System.out.println(u2);
+    		System.out.println("##################################2222222");
     		
     		URL url2=getClass().getClassLoader().getResource("/");
-        	System.out.println("base fold2:"+url2.toURI().getPath());
+        	System.out.println("base fold2:"+url2);
         	
     		URL url=getClass().getClassLoader().getResource("/"+ConstantsUserAgent.SUPPORT_DEVICE_RESOURCE_FILE);
-    		System.out.println("base fold1:"+url.toURI().getPath());
-        	
+    		System.out.println("base fold1:"+url);
+    		System.out.println("##################################3333333");
         	String filePath;
     		filePath = url.toURI().getPath();
     		System.out.println("######filePath="+filePath);
