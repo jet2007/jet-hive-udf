@@ -106,14 +106,8 @@ public class GooglePlayStoreSupportedDeviceBuild {
     		System.out.println(u2);
     		System.out.println("##################################2222222");
     		
-    		URL url2=getClass().getClassLoader().getResource("/");
-        	System.out.println("base fold2:"+url2);
-        	
-    		URL url=getClass().getClassLoader().getResource("/"+ConstantsUserAgent.SUPPORT_DEVICE_RESOURCE_FILE);
-    		System.out.println("base fold1:"+url);
-    		System.out.println("##################################3333333");
         	String filePath;
-    		filePath = url.toURI().getPath();
+    		filePath = u2.toURI().getPath();
     		System.out.println("######filePath="+filePath);
 			readResouceFile(filePath);
 		} catch (URISyntaxException e) {
