@@ -1,6 +1,7 @@
 package com.jet.utils.useragent.build;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -95,6 +96,33 @@ public class GooglePlayStoreSupportedDeviceBuild {
 
     }
     
+    
+    /**
+     * 读取数据源的资源文件
+     */
+    private void readResouceFile(InputStream inputStream)  {
+		try {
+	    	ArrayList<String []> List = new ArrayList<String[]>();
+	    	CsvReader reader = new CsvReader(inputStream,',', Charset.forName("UTF-16"));
+	    	reader.readHeaders();// 跳过表头 如果需要表头的话，这句可以忽略  
+	    	supportedDeviceList=new ArrayList<GooglePlayStoreSupportedDevice>();
+	    	while(reader.readRecord()) {
+		           List.add(reader.getValues());
+		           String[] record = reader.getValues();
+		           if(record!=null && record.length==4){
+		        	   GooglePlayStoreSupportedDevice sd = new GooglePlayStoreSupportedDevice(record);
+		        	   if(StringUtils.isNotBlank(sd.getRetailBranding())){ //没有厂商的，不考虑
+		        		   this.supportedDeviceList.add(sd);
+		        	   }
+		           }
+		       }
+	       reader.close();
+		} catch (IOException e) {
+			logger.error("loadFile error. error is ");
+		}
+
+    }
+    
     private void readResouceFile()  {
     	
     	try {
@@ -109,7 +137,9 @@ public class GooglePlayStoreSupportedDeviceBuild {
         	String filePath;
     		filePath = u2.toURI().getPath();
     		System.out.println("######filePath="+filePath);
-			readResouceFile(filePath);
+    		
+    		InputStream inputStream = GooglePlayStoreSupportedDeviceBuild.class.getResourceAsStream("/"+ConstantsUserAgent.SUPPORT_DEVICE_RESOURCE_FILE);
+			readResouceFile(inputStream);
 		} catch (URISyntaxException e) {
 			logger.error("loadFile error. error is "+ ConstantsUserAgent.SUPPORT_DEVICE_RESOURCE_FILE);
 		}
