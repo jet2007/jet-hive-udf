@@ -51,11 +51,9 @@ import java.util.Set;
     value = "_FUNC_(str,[str],[str]) - Parses the UserAgent into a map type.",
     extended = "Example:\n" +
         "> SELECT UserAgentParse(useragent), \n" +
-        "         UserAgentParse(useragent,'default'), \n" +
-        "         UserAgentParse(useragent,'key1,key2,...,keyN') \n" +
-        "         UserAgentParse(useragent,'all','support_devices.csv') \n" +
+        "         UserAgentParse(useragent,'all'), \n" +
         "  FROM   useragent_table;\n" )
-public class UDFUserAgentParserYauaaSupportedDevice3 extends GenericUDF {
+public class UDFUserAgentParserYauaaSupportedDeviceDefault extends GenericUDF {
 
 	//private PrimitiveObjectInspector inputOI;
     private StringObjectInspector stringOI = null;
@@ -67,7 +65,7 @@ public class UDFUserAgentParserYauaaSupportedDevice3 extends GenericUDF {
     @Override
     public ObjectInspector initialize(ObjectInspector[] args) throws UDFArgumentException {
         if (args.length < 1) {
-            throw new UDFArgumentException("The argument list must be exactly 1/2/3  element");
+            throw new UDFArgumentException("The argument list must be exactly 1 or 2  element");
         }
         System.out.println("###############################10000.001");
         if (userAgentAnalyzer == null) {
@@ -103,8 +101,8 @@ public class UDFUserAgentParserYauaaSupportedDevice3 extends GenericUDF {
 
 	@Override
     public Object evaluate(DeferredObject[] args) throws HiveException,UDFArgumentException {
-        //根据第2或3个参数值，Initialize
-        if(isNonInit){//未被初始化过，有2/3个参数的情况
+        //根据第2个参数值，Initialize
+        if(isNonInit){//未被初始化过，有2个参数的情况
         	if(args.length>1){ //根据第2个参数，得到map的key列表
         		String inputFields = stringOI.getPrimitiveJavaObject(args[1].get());
         		this.fieldNames=getFieldNames(inputFields);

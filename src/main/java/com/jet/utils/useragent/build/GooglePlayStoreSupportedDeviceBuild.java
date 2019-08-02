@@ -1,9 +1,9 @@
 package com.jet.utils.useragent.build;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,95 +12,64 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 
 import com.csvreader.CsvReader;
 import com.jet.utils.string.StringUtils;
+import com.jet.utils.udf.HiveUdfUtils;
 import com.jet.utils.useragent.constant.ConstantsUserAgent;
 import com.jet.utils.useragent.model.GooglePlayStoreSupportedDevice;
 
 
 public class GooglePlayStoreSupportedDeviceBuild {
 	
-	private static Logger logger = LoggerFactory.getLogger(GooglePlayStoreSupportedDeviceBuild.class);
 	private List<GooglePlayStoreSupportedDevice> supportedDeviceList=null;
 	// 型号精确匹配，型号一般匹配，厂商匹配的索引
-	private	Map<String,Set<Integer>> vendorIndex= null;  // 形如 huawei=[1001,1002,1003]
-    private Map<String,Set<Integer>> deviceModelIndex = null;
-    private Map<String,Set<Integer>> deviceModelLowerNoVendorIndex = null;
+	private	static Map<String,Set<Integer>> vendorIndex= null;  // 形如 huawei=[1001,1002,1003]
+    private static Map<String,Set<Integer>> deviceModelIndex = null;
+    private static Map<String,Set<Integer>> deviceModelLowerNoVendorIndex = null;
     
     /**
      * 创建型号精确匹配，型号一般匹配，厂商匹配的索引
      */
     private void buildIndex(){
-    	this.vendorIndex=new HashMap<String,Set<Integer>>();
-    	this.deviceModelIndex=new HashMap<String,Set<Integer>>();
-    	this.deviceModelLowerNoVendorIndex=new HashMap<String,Set<Integer>>();
+    	vendorIndex=new HashMap<String,Set<Integer>>();
+    	deviceModelIndex=new HashMap<String,Set<Integer>>();
+    	deviceModelLowerNoVendorIndex=new HashMap<String,Set<Integer>>();
     	for (int i = 0; i < this.supportedDeviceList.size(); i++) {
     		GooglePlayStoreSupportedDevice supportedDevice = supportedDeviceList.get(i);
     		
     		String vendorKey = supportedDevice.getRetailBranding().toLowerCase();
-    		Set<Integer> vendorVauleSet = this.vendorIndex.get(vendorKey);
+    		Set<Integer> vendorVauleSet = vendorIndex.get(vendorKey);
     		if(vendorVauleSet==null){
     			vendorVauleSet=new HashSet<Integer>();
     		}
     		vendorVauleSet.add(Integer.valueOf(i));
-    		this.vendorIndex.put(vendorKey, vendorVauleSet);
+    		vendorIndex.put(vendorKey, vendorVauleSet);
     		
     		String deviceModelKey = supportedDevice.getModel();
-    		Set<Integer> deviceModelVauleSet = this.deviceModelIndex.get(deviceModelKey);
+    		Set<Integer> deviceModelVauleSet = deviceModelIndex.get(deviceModelKey);
     		if(deviceModelVauleSet==null){
     			deviceModelVauleSet=new HashSet<Integer>();
     		}
     		deviceModelVauleSet.add(Integer.valueOf(i));
-    		this.deviceModelIndex.put(deviceModelKey, deviceModelVauleSet);
+    		deviceModelIndex.put(deviceModelKey, deviceModelVauleSet);
     		
     		
     		String deviceModelLowerNoVendorKey = supportedDevice.getModel().toLowerCase().replace(vendorKey.toLowerCase(), "").trim();
-    		Set<Integer> deviceModelLowerNoVendorVauleSet = this.deviceModelLowerNoVendorIndex.get(deviceModelLowerNoVendorKey);
+    		Set<Integer> deviceModelLowerNoVendorVauleSet = deviceModelLowerNoVendorIndex.get(deviceModelLowerNoVendorKey);
     		if(deviceModelLowerNoVendorVauleSet==null){
     			deviceModelLowerNoVendorVauleSet=new HashSet<Integer>();
     		}
     		deviceModelLowerNoVendorVauleSet.add(Integer.valueOf(i));
-    		this.deviceModelLowerNoVendorIndex.put(deviceModelLowerNoVendorKey, deviceModelLowerNoVendorVauleSet);
+    		deviceModelLowerNoVendorIndex.put(deviceModelLowerNoVendorKey, deviceModelLowerNoVendorVauleSet);
     		
 		}
     	
     }
     
-	
-    /**
-     * 读取数据源的资源文件
-     */
-    private void readResouceFile(String filePath)  {
-		try {
-	    	ArrayList<String []> List = new ArrayList<String[]>();
-	    	CsvReader reader = new CsvReader(filePath,',', Charset.forName("UTF-16"));
-	    	reader.readHeaders();// 跳过表头 如果需要表头的话，这句可以忽略  
-	    	supportedDeviceList=new ArrayList<GooglePlayStoreSupportedDevice>();
-	    	while(reader.readRecord()) {
-		           List.add(reader.getValues());
-		           String[] record = reader.getValues();
-		           if(record!=null && record.length==4){
-		        	   GooglePlayStoreSupportedDevice sd = new GooglePlayStoreSupportedDevice(record);
-		        	   if(StringUtils.isNotBlank(sd.getRetailBranding())){ //没有厂商的，不考虑
-		        		   this.supportedDeviceList.add(sd);
-		        	   }
-		           }
-		       }
-	       reader.close();
-		} catch (IOException e) {
-			logger.error("loadFile error. error is "+ filePath);
-		}
-
-    }
     
-    
-    /**
-     * 读取数据源的资源文件
-     */
-    private void readResouceFile(InputStream inputStream)  {
+    private void readResouceByInputStream(InputStream inputStream) throws UDFArgumentException  {
 		try {
 	    	ArrayList<String []> List = new ArrayList<String[]>();
 	    	CsvReader reader = new CsvReader(inputStream,',', Charset.forName("UTF-16"));
@@ -117,44 +86,54 @@ public class GooglePlayStoreSupportedDeviceBuild {
 		           }
 		       }
 	       reader.close();
+	       inputStream.close();
 		} catch (IOException e) {
-			logger.error("loadFile error. error is ");
+			throw new UDFArgumentException(String.format("Read file %s info Error."));
+		}
+
+    }
+	
+    /**
+     * 读取数据源的资源文件hdfs_filename,hdfs的文件名，不包含路径
+     * @throws UDFArgumentException 
+     */
+    private void readResouceFile(String hdfs_filename) throws UDFArgumentException  {
+		try {
+			File f = HiveUdfUtils.getHiveResourceFile(hdfs_filename);
+			if(!f.exists()) {
+				throw new UDFArgumentException(String.format("The file %s can not found.", hdfs_filename));
+			}
+			InputStream inputStream = new FileInputStream(f);
+			readResouceByInputStream(inputStream);
+			inputStream.close();
+		} catch (IOException e) {
+			throw new UDFArgumentException(String.format("Read file %s info Error.", hdfs_filename));
 		}
 
     }
     
-    private void readResouceFile()  {
-    	
+    
+    /**
+     * 读取数据源的资源文件(jar内部)
+     * @throws UDFArgumentException 
+     */    
+    private void readResouceFile() throws UDFArgumentException  {
     	try {
-    		System.out.println("##################################1111111");
-    		URL u1 = GooglePlayStoreSupportedDeviceBuild.class.getResource("/");
-    		System.out.println(u1);
-    		
-    		URL u2 = GooglePlayStoreSupportedDeviceBuild.class.getResource("/"+ConstantsUserAgent.SUPPORT_DEVICE_RESOURCE_FILE);
-    		System.out.println(u2);
-    		System.out.println("##################################2222222");
-    		
-        	String filePath;
-    		filePath = u2.toURI().getPath();
-    		System.out.println("######filePath="+filePath);
-    		
     		InputStream inputStream = GooglePlayStoreSupportedDeviceBuild.class.getResourceAsStream("/"+ConstantsUserAgent.SUPPORT_DEVICE_RESOURCE_FILE);
-			readResouceFile(inputStream);
-		} catch (URISyntaxException e) {
-			logger.error("loadFile error. error is "+ ConstantsUserAgent.SUPPORT_DEVICE_RESOURCE_FILE);
+    		readResouceByInputStream(inputStream);
+    		inputStream.close();
+		} catch ( IOException e) {
+			throw new UDFArgumentException(String.format("Read file %s info error.", ConstantsUserAgent.SUPPORT_DEVICE_RESOURCE_FILE));
 		}
     }
 	
     
-	public GooglePlayStoreSupportedDeviceBuild() {
-		System.out.println("##################################00000.1");
+	public GooglePlayStoreSupportedDeviceBuild() throws UDFArgumentException {
 		readResouceFile();
-		System.out.println("##################################00000.2");
         buildIndex();
-        System.out.println("##################################00000.3");
 	}
 	
-	public GooglePlayStoreSupportedDeviceBuild(String filePath) {
+	public GooglePlayStoreSupportedDeviceBuild(String filePath) throws UDFArgumentException {
 		readResouceFile(filePath);
         buildIndex();
 	}
@@ -177,9 +156,9 @@ public class GooglePlayStoreSupportedDeviceBuild {
 	public GooglePlayStoreSupportedDevice getSupportDeviceBy(String yauaaUserAgentDeviceName,String yauaaUserAgentDeviceBrand){
 		String yauaaUserAgentDeviceBrandLower = yauaaUserAgentDeviceBrand.toLowerCase();//厂商小写
 		String yauaaUserAgentDeviceNameLowerNoVendor =  yauaaUserAgentDeviceName.toLowerCase().replace(yauaaUserAgentDeviceBrandLower, "").trim();//型号小写(除去厂商)
-		Set<Integer> deviceModelIndexSet = this.deviceModelIndex.get(yauaaUserAgentDeviceName);
-		Set<Integer> deviceModelLowerNoVendorIndexSet = this.deviceModelLowerNoVendorIndex.get(yauaaUserAgentDeviceNameLowerNoVendor);
-		Set<Integer> vendorIndexSet = this.vendorIndex.get(yauaaUserAgentDeviceBrandLower);
+		Set<Integer> deviceModelIndexSet = deviceModelIndex.get(yauaaUserAgentDeviceName);
+		Set<Integer> deviceModelLowerNoVendorIndexSet = deviceModelLowerNoVendorIndex.get(yauaaUserAgentDeviceNameLowerNoVendor);
+		Set<Integer> vendorIndexSet = vendorIndex.get(yauaaUserAgentDeviceBrandLower);
 		
 		Integer indexNum=-1;
 		if(deviceModelIndexSet!=null){ // 型号精确匹配
