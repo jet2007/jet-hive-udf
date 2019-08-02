@@ -98,7 +98,7 @@ public class GooglePlayStoreSupportedDeviceBuild {
     private void readResouceFile()  {
     	
     	try {
-    		URL url=getClass().getClassLoader().getResource(ConstantsUserAgent.SUPPORT_DEVICE_RESOURCE_FILE);
+    		URL url=getClass().getClassLoader().getResource("/"+ConstantsUserAgent.SUPPORT_DEVICE_RESOURCE_FILE);
     		System.out.println("base fold1:"+url.toURI().getPath());
         	URL url2=getClass().getClassLoader().getResource("/");
         	System.out.println("base fold2:"+url2.toURI().getPath());
