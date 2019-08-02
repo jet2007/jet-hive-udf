@@ -69,6 +69,7 @@ public class UDFUserAgentParserYauaaSupportedDeviceDefault extends GenericUDF {
         }
         System.out.println("###############################10000.001");
         if (userAgentAnalyzer == null) {
+        	System.out.println("###############################10000.001-1");
             userAgentAnalyzer = UserAgentAnalyzer
                 .newBuilder()
                 .hideMatcherLoadStats()
@@ -77,6 +78,7 @@ public class UDFUserAgentParserYauaaSupportedDeviceDefault extends GenericUDF {
         }
         System.out.println("###############################10000.002");
         if (supportedDevicesParser == null) {
+        	System.out.println("###############################10000.002-2");
         	supportedDevicesParser = new GooglePlayStoreSupportedDeviceBuild();
         }
         System.out.println("###############################10000.003");
@@ -103,7 +105,9 @@ public class UDFUserAgentParserYauaaSupportedDeviceDefault extends GenericUDF {
     public Object evaluate(DeferredObject[] args) throws HiveException,UDFArgumentException {
         //根据第2个参数值，Initialize
         if(isNonInit){//未被初始化过，有2个参数的情况
+        	System.out.println("###############################10000.004");
         	if(args.length>1){ //根据第2个参数，得到map的key列表
+        		System.out.println("###############################10000.004-2");
         		String inputFields = stringOI.getPrimitiveJavaObject(args[1].get());
         		this.fieldNames=getFieldNames(inputFields);
         	}
