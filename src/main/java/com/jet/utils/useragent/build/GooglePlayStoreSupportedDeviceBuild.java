@@ -123,8 +123,11 @@ public class GooglePlayStoreSupportedDeviceBuild {
 	
     
 	public GooglePlayStoreSupportedDeviceBuild() {
+		System.out.println("##################################00000.1");
 		readResouceFile();
+		System.out.println("##################################00000.2");
         buildIndex();
+        System.out.println("##################################00000.3");
 	}
 	
 	public GooglePlayStoreSupportedDeviceBuild(String filePath) {
