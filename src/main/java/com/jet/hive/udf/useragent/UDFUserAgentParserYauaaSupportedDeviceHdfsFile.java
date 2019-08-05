@@ -43,12 +43,12 @@ import java.util.Set;
 
 /**
  * 参考nl.basjes.parse.useragent.hive.UserAgentParse
- *
  */
 
 @Description(
     name = "UserAgentParse",
-    value = "_FUNC_(str,[str],[str]) - Parses the UserAgent into a map type.",
+    value = "_FUNC_(str,[str],[str]) - Parses the UserAgent into a map type."+
+    	    "Required Env: Java 1.8+.",
     extended = "Example:\n" +
         "> SELECT UserAgentParse(useragent), \n" +
         "         UserAgentParse(useragent,'default'), \n" +
@@ -79,7 +79,7 @@ public class UDFUserAgentParserYauaaSupportedDeviceHdfsFile extends GenericUDF {
 
     @Override
     public ObjectInspector initialize(ObjectInspector[] args) throws UDFArgumentException {
-        if (args.length < 1) {
+        if (args.length < 4) {
             throw new UDFArgumentException("The argument list must be exactly 1/2/3  element");
         }
         // Initialize
@@ -91,7 +91,6 @@ public class UDFUserAgentParserYauaaSupportedDeviceHdfsFile extends GenericUDF {
         }
         if (args.length == 1) {
         	this.fieldNames=getFieldNames(null);
-        	this.isNonInit=false;
         }
 		// 存储在全局变量的ObjectInspectors元素的输入
         ObjectInspector inputOI = args[0]; // The first argument must be a String
@@ -110,11 +109,12 @@ public class UDFUserAgentParserYauaaSupportedDeviceHdfsFile extends GenericUDF {
     public Object evaluate(DeferredObject[] args) throws HiveException,UDFArgumentException {
         //根据第2或3个参数值，Initialize
         if(isNonInit){//未被初始化过，有2/3个参数的情况
+        	String inputFields = null;
         	if(args.length>1){ //根据第2个参数，得到map的key列表
-        		String inputFields = stringOI.getPrimitiveJavaObject(args[1].get());
-        		this.fieldNames=getFieldNames(inputFields);
+        		stringOI.getPrimitiveJavaObject(args[1].get());
         	}
-        	if(args.length==3){//第3个参数，为support devices的hdfs文件名
+        	this.fieldNames=getFieldNames(inputFields);
+        	if(args.length>=3){//第3个参数，为support devices的hdfs文件名
         		String resourceFileName = stringOI.getPrimitiveJavaObject(args[2].get());
         		if (supportedDevicesParser == null) {
                 	supportedDevicesParser = new GooglePlayStoreSupportedDeviceBuild(resourceFileName);

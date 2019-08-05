@@ -1,24 +1,25 @@
-# hive-third-functions 
+[TOC]
 
-[![Build Status](https://travis-ci.org/aaronshan/hive-third-functions.svg?branch=master)](https://travis-ci.org/aaronshan/hive-third-functions)
-[![Documentation Status](https://img.shields.io/badge/docs-latest-brightgreen.svg?style=flat)](https://github.com/aaronshan/hive-third-functions/tree/master/README.md)
-[![Documentation Status](https://img.shields.io/badge/中文文档-最新-brightgreen.svg)](https://github.com/aaronshan/hive-third-functions/tree/master/README-zh.md)
-[![Release](https://img.shields.io/github/release/aaronshan/hive-third-functions.svg)](https://github.com/aaronshan/hive-third-functions/releases)
+# jet-hive-udf
+
+
 
 ## 简介
 
-hive-third-functions 包含了一些很有用的hive udf函数，特别是数组和json函数.
+jet-hive-udf 包含了一些有用的hive udf函数，包含日期计算，ip,useragent解析函数，加密解密等.
 
 > 注意:
-> hive-third-functions支持hive-0.11.0或更高版本.
+> jet-hive-udf支持hive-0.11.0或更高版本.
+> 其中useragent解析需要使用到java8+,其他需要java6+
 
 ## 编译
 
 ### 1. 安装依赖
 
-目前, jdo2-api-2.3-ec.jar 在maven中央仓库中已经不可用, 因此我们不得不自己下载并安装到本地的maven库中. 命令如下：
+本项目仅需要maven环境；
 
 ```
+# 若要手动加入某个包，如jdo2-api-2.3-ec.jar 在maven中央仓库中已经不可用, 因此我们不得不自己下载并安装到本地的maven库中. 命令如下：
 wget http://www.datanucleus.org/downloads/maven2/javax/jdo/jdo2-api/2.3-ec/jdo2-api-2.3-ec.jar -O ~/jdo2-api-2.3-ec.jar
 mvn install:install-file -DgroupId=javax.jdo -DartifactId=jdo2-api -Dversion=2.3-ec -Dpackaging=jar -Dfile=~/jdo2-api-2.3-ec.jar
 ```
@@ -30,339 +31,383 @@ cd ${project_home}
 mvn clean package
 ```
 
-如果你想跳过单元测试，可以这样运行：
+##### 如果你想跳过单元测试，可以这样运行：
+
 ```
 cd ${project_home}
 mvn clean package -DskipTests
 ```
 
-命令执行完成后, 将会在target目录下生成hive-third-functions-${version}-shaded.jar文件.
+命令执行完成后, 将会在target目录下生成[A=jet-hive-udf-\${version}-shaded.jar, B=jet-hive-udf-\${version}.jar]文件.其中A是包括所有依赖包的jar, B是最小编译jar文件
 
-你也可以直接在发布页下载打包好了最新版本 [发布页](https://github.com/aaronshan/hive-third-functions/releases).
+你也可以直接在发布页下载打包好了最新版本 [发布页](https://github.com/jet2007/jet-hive-udf/releases).
 
-> 当前最新的版本是 `2.2.1`
+> 当前最新的版本是 `1.0.0`
 
-## Maven
-
-现在，我已经把`hive-third-functions`发布到maven中央仓库了。你可以在pom文件中增加如下dependency来使用它：
-
-```
-<dependency>
-  <groupId>com.github.aaronshan</groupId>
-  <artifactId>hive-third-functions</artifactId>
-  <version>2.2.1</version>
-</dependency>
-```
-
-## 函数
-
-### 1. 字符函数
-
-| 函数| 描述 |
-|:--|:--|
-|pinyin(string) -> string | 将汉字转换为拼音|
-|md5(string) -> string | md5 哈希|
-|sha256(string) -> string |sha256 哈希|
-
-### 2. 数组函数
-
-| 函数| 描述 |
-|:--|:--|
-|array_contains(array&lt;E&gt;, E) -> boolean | 判断数组是否包含某个值.|
-|array_equals(array&lt;E&gt;, array&lt;E&gt;) -> boolean | 判断两个数组是否相等.|
-|array_intersect(array, array) -> array | 返回两个数组的交集.|
-|array_max(array&lt;E&gt;) -> E | 返回数组中的最大值.|
-|array_min(array&lt;E&gt;) -> E | 返回数组中的最小值.|
-|array_join(array, delimiter, null_replacement) -> string | 使用给定的连接符来连接数组中的元素, `null_replacement`是一个可选项, 用来替代空值.|
-|array_distinct(array) -> array | 移除数组中的重复元素.|
-|array_position(array&lt;E&gt;, E) -> long | 返回给定元素在数组中第一次出现的位置 (如果没找到, 返回0).|
-|array_remove(array&lt;E&gt;, E) -> array | 删除数组中的给定元素.|
-|array_reverse(array) -> array | 反转一个数组.|
-|array_sort(array) -> array | 对数组排序, 数组中的元素必需是可排序的.|
-|array_concat(array, array) -> array | 连接两个数组.|
-|array_value_count(array&lt;E&gt;, E) -> long | 统计数组中包含给定元素的个数.|
-|array_slice(array, start, length) -> array | 对数组进行分片操作，start为正数从前开始分片, start为负数从后开始分片, 长度为指定的长度.|
-|array_element_at(array&lt;E&gt;, index) -> E | 返回指定位置的数组元素. 如果索引位置 < 0, 则从尾部开始计数并返回.|
-|array_shuffle(array) -> array | 对数组shuffle.|
-|sequence(start, end) -> array<Long> | 生成数组序列.|
-|sequence(start, end, step) -> array<Long> | 生成数组序列.|
-|sequence(start_date_string, end_data_string, step) -> array<String> | 生成日期数组序列.|
-
-### 3. map函数
-| 函数| 描述 |
-|:--|:--|
-|map_build(x&lt;K&gt;, y&lt;V&gt;) -> map&lt;K, V&gt;| 根据指定的键/值对数组创建map.|
-|map_concat(x&lt;K, V&gt;, y&lt;K, V&gt;) -> map&lt;K,V&gt; | 返回两个map的并集. 如果一个键在 `x` 和 `y`中同时出现, 那对应值来自`y`.| 
-|map_element_at(map&lt;K, V&gt;, key) -> V | 如果指定的`key`存在，返回对应的值, 否则返回 `NULL` .|
-|map_equals(x&lt;K, V&gt;, y&lt;K, V&gt;) -> boolean |  判断map x 和 map y是否相等.|
-
-### 4. 日期函数
-
-| 函数| 描述 |
-|:--|:--|
-|day_of_week(date_string \| date) -> int | 一周的第几天,周一返回 1, 周日返回 7, 出错返回null.|
-|day_of_year(date_string \| date) -> int | 一年的第几天. 值的范围从 1 到 366.|
-|zodiac_en(date_string \| date) -> string | 将日期转换为星座英文|
-|zodiac_cn(date_string \| date) -> string | 将日期转换为星座中文 | 
-|type_of_day(date_string \| date) -> string | 获取日期的类型(1: 法定节假日, 2: 正常周末, 3: 正常工作日 4:攒假的工作日),错误返回-1. |
-
-### 5. json函数
-
-| 函数| 描述 |
-|:--|:--|
-|json_array_get(json, jsonPath) -> array(varchar) |returns the element at the specified index into the `json_array`. The index is zero-based.|
-|json_array_length(json, jsonPath) -> array(varchar) |returns the array length of `json` (a string containing a JSON array).|
-|json_array_extract(json, jsonPath) -> array(varchar) |extract json array by given jsonPath.|
-|json_array_extract_scalar(json, jsonPath) -> array(varchar) |like `json_array_extract`, but returns the result value as a string (as opposed to being encoded as JSON).|
-|json_extract(json, jsonPath) -> array(varchar) |extract json by given jsonPath.|
-|json_extract_scalar(json, jsonPath) -> array(varchar) |like `json_extract`, but returns the result value as a string (as opposed to being encoded as JSON).|
-|json_size(json, jsonPath) -> array(varchar) |like `json_extract`, but returns the size of the value. For objects or arrays, the size is the number of members, and the size of a scalar value is zero.|
-
-### 6. 位函数
-
-| 函数| 描述 |
-|:--|:--|
-|bit_count(x, bits) -> bigint | count the number of bits set in `x` (treated as bits-bit signed integer) in 2’s complement representation |
-|bitwise_and(x, y) -> bigint | returns the bitwise AND of `x` and `y` in 2’s complement arithmetic.|
-|bitwise_not(x) -> bigint | returns the bitwise NOT of `x` in 2’s complement arithmetic. | 
-|bitwise_or(x, y) -> bigint | returns the bitwise OR of `x` and `y` in 2’s complement arithmetic.|
-|bitwise_xor(x, y) -> bigint | returns the bitwise XOR of `x` and `y` in 2’s complement arithmetic. | 
-
-### 7. 中国身份证函数
-
-| 函数| 描述 |
-|:--|:--|
-|id_card_province(string) -> string |从身份证号获取省份|
-|id_card_city(string) -> string |从身份证号获取城市|
-|id_card_area(string) -> string |从身份证号获取区/县|
-|id_card_birthday(string) -> string |从身份证号获取生日|
-|id_card_gender(string) -> string |从身份证号获取性别|
-|is_valid_id_card(string) -> boolean |鉴定身份证号是否有效.|
-|id_card_info(string) -> json |获取身份证号信息. 包活省份、城市、区县等.|
-
-### 8. 坐标系函数 
-
-| 函数| 描述 |
-|:--|:--|
-|wgs_distance(double lat1, double lng1, double lat2, double lng2) -> double | 计算 WGS84坐标距离, 单位米. |
-|gcj_to_bd(double,double) -> json | GCJ-02(火星坐标系) 转为 BD-09(百度坐标系), 谷歌、高德——>百度|
-|bd_to_gcj(double,double) -> json | BD-09(百度坐标系) 转为 GCJ-02(火星坐标系), 百度——>谷歌、高德|
-|wgs_to_gcj(double,double) -> json | WGS84(地球坐标系) 转为 GCJ02(火星坐标系)|
-|gcj_to_wgs(double,double) -> json | GCJ02(火星坐标系) 转为 GPS84(地球坐标系), 输出的坐标精度在1到2米.|
-|gcj_extract_wgs(double,double) -> json | GCJ02(火星坐标系) 转为 GPS84, 输出的坐标精度在0.5米. 但是计算比`gcj_to_wgs`耗时长. |
-
-> 关于互联网地图坐标系的说明见: [当前互联网地图的坐标系现状](https://github.com/aaronshan/hive-third-functions/tree/master/README-geo.md)
-
-
-### 9. url函数
-
-| 函数| 描述 |
-|:--|:--|
-|url_encode(value) -> string | escapes value by encoding it so that it can be safely included in URL query parameter names and values|
-|url_decode(value) -> string | unescape the URL encoded value. This function is the inverse of `url_encode`. | 
-
-### 10. 数学函数
-
-| function| description |
-|:--|:--|
-|infinity() -> double | 获取正无穷常数|
-|is_finite(x) -> boolean | 判断x是否为有限数值|
-|is_infinite(x) -> boolean |判断x是否为无穷数值|
-|is_nan(x) -> boolean | 判断x是否不是一个数值类型的变量|
-|nan() -> double | 获取一个表示NAN（not-a-number）的常数 |
-|from_base(string, radix) -> bigint | 获取字面量的值，该值的基数为radix|
-|to_base(x, radix) -> varchar | 返回x以radix为基数的字面量|
-|cosine_similarity(x, y) -> double | 返回两个稀疏向量的余弦相似度|
 
 
 ## 用法
 
 将下面这些内容写入 `${HOME}/.hiverc` 文件, 或者也可以按需在hive命令行环境中执行.
 
-```
-add jar ${jar_location_dir}/hive-third-functions-${version}-shaded.jar
-create temporary function array_contains as 'com.github.aaronshan.functions.array.UDFArrayContains';
-create temporary function array_equals as 'com.github.aaronshan.functions.array.UDFArrayEquals';
-create temporary function array_intersect as 'com.github.aaronshan.functions.array.UDFArrayIntersect';
-create temporary function array_max as 'com.github.aaronshan.functions.array.UDFArrayMax';
-create temporary function array_min as 'com.github.aaronshan.functions.array.UDFArrayMin';
-create temporary function array_join as 'com.github.aaronshan.functions.array.UDFArrayJoin';
-create temporary function array_distinct as 'com.github.aaronshan.functions.array.UDFArrayDistinct';
-create temporary function array_position as 'com.github.aaronshan.functions.array.UDFArrayPosition';
-create temporary function array_remove as 'com.github.aaronshan.functions.array.UDFArrayRemove';
-create temporary function array_reverse as 'com.github.aaronshan.functions.array.UDFArrayReverse';
-create temporary function array_sort as 'com.github.aaronshan.functions.array.UDFArraySort';
-create temporary function array_concat as 'com.github.aaronshan.functions.array.UDFArrayConcat';
-create temporary function array_value_count as 'com.github.aaronshan.functions.array.UDFArrayValueCount';
-create temporary function array_slice as 'com.github.aaronshan.functions.array.UDFArraySlice';
-create temporary function array_element_at as 'com.github.aaronshan.functions.array.UDFArrayElementAt';
-create temporary function array_shuffle as 'com.github.aaronshan.functions.array.UDFArrayShuffle';
-create temporary function sequence as 'com.github.aaronshan.functions.array.UDFSequence';
-create temporary function array_value_count as 'com.github.aaronshan.functions.array.UDFArrayValueCount';
-create temporary function bit_count as 'com.github.aaronshan.functions.bitwise.UDFBitCount';
-create temporary function bitwise_and as 'com.github.aaronshan.functions.bitwise.UDFBitwiseAnd';
-create temporary function bitwise_not as 'com.github.aaronshan.functions.bitwise.UDFBitwiseNot';
-create temporary function bitwise_or as 'com.github.aaronshan.functions.bitwise.UDFBitwiseOr';
-create temporary function bitwise_xor as 'com.github.aaronshan.functions.bitwise.UDFBitwiseXor';
-create temporary function map_build as 'com.github.aaronshan.functions.map.UDFMapBuild';
-create temporary function map_concat as 'com.github.aaronshan.functions.map.UDFMapConcat';
-create temporary function map_element_at as 'com.github.aaronshan.functions.map.UDFMapElementAt';
-create temporary function map_equals as 'com.github.aaronshan.functions.map.UDFMapEquals';
-create temporary function day_of_week as 'com.github.aaronshan.functions.date.UDFDayOfWeek';
-create temporary function day_of_year as 'com.github.aaronshan.functions.date.UDFDayOfYear';
-create temporary function type_of_day as 'com.github.aaronshan.functions.date.UDFTypeOfDay'; 
-create temporary function zodiac_cn as 'com.github.aaronshan.functions.date.UDFZodiacSignCn';
-create temporary function zodiac_en as 'com.github.aaronshan.functions.date.UDFZodiacSignEn';
-create temporary function pinyin as 'com.github.aaronshan.functions.string.UDFChineseToPinYin';
-create temporary function md5 as 'com.github.aaronshan.functions.string.UDFMd5';
-create temporary function sha256 as 'com.github.aaronshan.functions.string.UDFSha256';
-create temporary function codepoint as 'com.github.aaronshan.functions.string.UDFCodePoint';
-create temporary function hamming_distance as 'com.github.aaronshan.functions.string.UDFStringHammingDistance';
-create temporary function levenshtein_distance as 'com.github.aaronshan.functions.string.UDFStringLevenshteinDistance';
-create temporary function normalize as 'com.github.aaronshan.functions.string.UDFStringNormalize';
-create temporary function strpos as 'com.github.aaronshan.functions.string.UDFStringPosition';
-create temporary function split_to_map as 'com.github.aaronshan.functions.string.UDFStringSplitToMap';
-create temporary function split_to_multimap as 'com.github.aaronshan.functions.string.UDFStringSplitToMultimap';
-create temporary function json_array_get as 'com.github.aaronshan.functions.json.UDFJsonArrayGet';
-create temporary function json_array_length as 'com.github.aaronshan.functions.json.UDFJsonArrayLength';
-create temporary function json_array_extract as 'com.github.aaronshan.functions.json.UDFJsonArrayExtract';
-create temporary function json_array_extract_scalar as 'com.github.aaronshan.functions.json.UDFJsonArrayExtractScalar';
-create temporary function json_extract as 'com.github.aaronshan.functions.json.UDFJsonExtract';
-create temporary function json_extract_scalar as 'com.github.aaronshan.functions.json.UDFJsonExtractScalar';
-create temporary function json_size as 'com.github.aaronshan.functions.json.UDFJsonSize';
-create temporary function id_card_province as 'com.github.aaronshan.functions.card.UDFChinaIdCardProvince';
-create temporary function id_card_city as 'com.github.aaronshan.functions.card.UDFChinaIdCardCity';
-create temporary function id_card_area as 'com.github.aaronshan.functions.card.UDFChinaIdCardArea';
-create temporary function id_card_birthday as 'com.github.aaronshan.functions.card.UDFChinaIdCardBirthday';
-create temporary function id_card_gender as 'com.github.aaronshan.functions.card.UDFChinaIdCardGender';
-create temporary function is_valid_id_card as 'com.github.aaronshan.functions.card.UDFChinaIdCardValid';
-create temporary function id_card_info as 'com.github.aaronshan.functions.card.UDFChinaIdCardInfo';
-create temporary function wgs_distance as 'com.github.aaronshan.functions.geo.UDFGeoWgsDistance';
-create temporary function gcj_to_bd as 'com.github.aaronshan.functions.geo.UDFGeoGcjToBd';
-create temporary function bd_to_gcj as 'com.github.aaronshan.functions.geo.UDFGeoBdToGcj';
-create temporary function wgs_to_gcj as 'com.github.aaronshan.functions.geo.UDFGeoWgsToGcj';
-create temporary function gcj_to_wgs as 'com.github.aaronshan.functions.geo.UDFGeoGcjToWgs';
-create temporary function gcj_extract_wgs as 'com.github.aaronshan.functions.geo.UDFGeoGcjExtractWgs';
-create temporary function url_encode as 'com.github.aaronshan.functions.url.UDFUrlEncode';
-create temporary function url_decode as 'com.github.aaronshan.functions.url.UDFUrlDecode';
-create temporary function infinity as 'com.github.aaronshan.functions.math.UDFMathInfinity';
-create temporary function is_finite as 'com.github.aaronshan.functions.math.UDFMathIsFinite';
-create temporary function is_infinite as 'com.github.aaronshan.functions.math.UDFMathIsInfinite';
-create temporary function nan as 'com.github.aaronshan.functions.math.UDFMathNaN';
-create temporary function is_nan as 'com.github.aaronshan.functions.math.UDFMathIsNaN';
-create temporary function from_base as 'com.github.aaronshan.functions.math.UDFMathFromBase';
-create temporary function to_base as 'com.github.aaronshan.functions.math.UDFMathToBase';
-create temporary function cosine_similarity as 'com.github.aaronshan.functions.math.UDFMathCosineSimilarity';
-create temporary function normal_cdf as 'com.github.aaronshan.functions.math.UDFMathNormalCdf';
-create temporary function inverse_normal_cdf as 'com.github.aaronshan.functions.math.UDFMathInverseNormalCdf';
-create temporary function regexp_extract as 'com.github.aaronshan.functions.regexp.UDFRe2JRegexpExtract';
-create temporary function regexp_extract_all as 'com.github.aaronshan.functions.regexp.UDFRe2JRegexpExtractAll';
-create temporary function regexp_like as 'com.github.aaronshan.functions.regexp.UDFRe2JRegexpLike';
-create temporary function regexp_replace as 'com.github.aaronshan.functions.regexp.UDFRe2JRegexpReplace';
-create temporary function regexp_split as 'com.github.aaronshan.functions.regexp.UDFRe2JRegexpSplit';
-```
+```sql
+add jar ${jar_location_dir}/jet-hive-udf-${version}-shaded.jar
+create temporary function md5 as 'com.jet.hive.udf.encrypt.UDFMd5';
+create temporary function sha256 as 'com.jet.hive.udf.encrypt.UDFSha256';
+create temporary function sha512 as 'com.jet.hive.udf.encrypt.UDFSha512';
+create temporary function enBase64 as 'com.jet.hive.udf.encrypt.UDFBase64';
+create temporary function enDes as 'com.jet.hive.udf.encrypt.UDFDes';
+create temporary function deBase64 as 'com.jet.hive.udf.decrypt.UDFBase64';
+create temporary function deDes as 'com.jet.hive.udf.decrypt.UDFDes';
 
-你可以在hive的命令杭中使用下面的语句来查看函数的细节.
-```
-hive> describe function zodiac_cn;
-zodiac_cn(date) - from the input date string or separate month and day arguments, returns the sing of the Zodiac.
-```
+create temporary function ipgeo as 'com.jet.hive.udf.ipgeo.UDFIp2Region';
+create temporary function ipgeo2 as 'com.jet.hive.udf.ipgeo.UDFIp2RegionStruct';
 
-或者
+create temporary function UserAgentParser as 'com.jet.hive.udf.ipgeo.UDFUserAgentParserYauaaSupportedDeviceDefault';
+create temporary function UserAgentParserHdfs as 'com.jet.hive.udf.ipgeo.UDFUserAgentParserYauaaSupportedDeviceHdfsFile';
+
+-- 日期
+create temporary function DateDelta as 'com.jet.hive.udf.date.DateDelta' 
+create temporary function CurrentDateTimeFormatDelta as 'com.jet.hive.udf.date.CurrentDateTimeFormatDelta'  ;
+create temporary function CurrentDateDelta as 'com.jet.hive.udf.date.CurrentDateDelta';
+create temporary function CurrentDateDelta2 as 'com.jet.hive.udf.date.CurrentDateDelta2'   ;
+create temporary function CurrentDateTimeDelta as 'com.jet.hive.udf.date.CurrentDateTimeDelta'   ;
+create temporary function CurrentDateTimeDelta2 as 'com.jet.hive.udf.date.CurrentDateTimeDelta2'  ;
 
 ```
-hive> describe function extended zodiac_cn;
-zodiac_cn(date) - from the input date string or separate month and day arguments, returns the sing of the Zodiac.
-Example:
- > select zodiac_cn(date_string) from src;
- > select zodiac_cn(month, day) from src;
+
+
+
+
+
+## 函数
+
+​	带*****星号的函数，详情见下面。
+
+| 分类      | 函数                                                      | 描述                                                         |
+| --------- | :-------------------------------------------------------- | :----------------------------------------------------------- |
+| 加密      | md5(string) -> string                                     | md5 哈希                                                     |
+| 加密      | sha256(string) -> string                                  | sha256 哈希                                                  |
+| 加密      | sha512(string) -> string                                  | sha256 哈希                                                  |
+| 加密      | *****enBase64(string) -> string                           | base64加密，可逆                                             |
+| 加密      | *****enDes(string [,string]) -> string                    | des加密，可逆；                                              |
+| 解密      | *****deBase64(string) -> string                           | base64解密                                                   |
+| 解密      | *****deDes(string [,string]) -> string                    | des解密                                                      |
+| IP        | *****ipgeo(ip_string) -> Map                              | 解析ip->国家,地区,省份,城市,ISP                              |
+| IP        | *****ipgeo2(ip_string) -> Struct                          | 解析ip->国家,地区,省份,城市,ISP                              |
+| useragent | *****UserAgentParse(ua_string [,fileds])                  | 解析useragent->设备,使用jar资源文件,浏览器,操作系统等        |
+| useragent | *****UserAgentParseHdfs(ua_string ,fileds,hdfs_fileanme ) | 解析useragent,使用hdfs文件->设备,浏览器,操作系统等           |
+| 日期计算  | *****DateDelta(date,offsets [,format])                    | 日期加减计算(包括年月日时分秒)                               |
+| 日期计算  | *****CurrentDateTimeFormatDelta                           | 基于当前系统时间的日期加减计算(包括年月日时分秒)             |
+| 日期计算  | *****CurrentDateDelta                                     | 基于当前系统时间的日期加减计算(包括年月日)，日期格式yyyy-MM-dd |
+| 日期计算  | *****CurrentDateDelta2                                    | 基于当前系统时间的日期加减计算(包括年月日)，日期格式yyyyMMdd |
+| 日期计算  | *****CurrentDateTimeDelta                                 | 基于当前系统时间的日期加减计算(包括年月日时分秒)，格式yyyy-MM-dd hh:mm:ss |
+| 日期计算  | *****CurrentDateTimeDelta2                                | 基于当前系统时间的日期加减计算(包括年月日时分秒)，格式yyyyMMddhhmmss |
+
+
+
+### 1. 加密解密函数
+
+#### Base64的加密解密函数（enBase64,deBase64函数）
+
+- 参数：明文或密文
+- 用途：加密解密速度快，常用HTTP等简单加密
+
+
+
+#### Des:使用密钥加密的块算法（enDes,deDes函数）
+
+- 参数：第1个参数为明文或密文；第2个参数：密钥，可选，默认值为JetdKxzVCbsgVIwTnc1jtpWn
+- 用途：使用密钥进行加解密，加密解密速度慢
+
+
+
+### 2. Ip解析函数
+
+#### Ip解析介绍
+
+- 参考项目：
+
+  - 使用ip2region项目[https://github.com/lionsoul2014/ip2region](https://github.com/lionsoul2014/ip2region),
+  - ip2region - 最自由的ip地址查询库，ip到地区的映射库;
+  - 数据聚合了一些知名ip到地名查询提供商的数据(淘宝IP地址库,GeoIP,纯真IP库)
+
+- 使用
+
+  - maven
+
+  - ```
+           <dependency>
+         			    <groupId>org.lionsoul</groupId>
+         			    <artifactId>ip2region</artifactId>
+         			    <version>1.7</version>
+         			</dependency>
+       ```
+    ```
+  
+  - UDF使用
+  
+    - ip地址库的资源文件=ip2region.db
+    ```
+
+#### IpGeo函数
+
+- 类：com.jet.hive.udf.ipgeo.UDFIp2Region
+- 参数：IP地址
+- 返回：Map类型的地理信息，示例{"ispName":"电信","countryName":"中国","regionName":null,"cityName":"南京市","provinceName":"江苏省"}
+- 示例：select ipgeo('221.226.1.11'),  ipgeo('221.226.1.11')['provinceName']
+
+#### IpGeo2函数
+
+- 类：com.jet.hive.udf.ipgeo.UDFIp2RegionStruct
+- 参数：IP地址
+- 返回：Struct类型的地理信息，示例{"ispName":"电信","countryName":"中国","regionName":null,"cityName":"南京市","provinceName":"江苏省"}
+- 示例：select ipgeo2('221.226.1.11'),  ipgeo2('221.226.1.11').provinceName
+
+
+
+### 3. UserAgent解析函数
+
+
+
+#### 介绍-ua解析
+
+UserAgent解析使用了第3个的相关项目，介绍如下
+
+##### ua解析项目Yauaa：
+
+- 项目yauaa:https://github.com/nielsbasjes/yauaa
+- This is a java library that tries to parse and analyze the useragent string and extract as many relevant attributes as possible. 解析出设备、操作系统、Agent，Engine等信息。**环境JAVA8+**
+- 注意：需要**JAVA8+**
+- 项目提供了一个hive udf供使用，但相关设备名称+厂商信息不完整，参考https://yauaa.basjes.nl/UDF-ApacheHive.html
+- 优点：解析useragent信息较全面且准确率高，
+- 缺点：速度慢
+
+##### ua解析项目juan
+
+- 项目**juan**:<https://github.com/codesorcery/juan>
+- A fast, thread-safe and dependency-free user agent parser for **Java 8+**.
+- 能够解析设备，浏览器，和厂商的相关信息
+- 优点：速度比yauaa快，
+- 缺点：准确率低(测试几个华为的ua信息，都没有识别出设备信息)
+
+
+
+#### 介绍-手机设备信息库
+
+​	对于手机设备来说，useragent解析项目至多是能够解析设备型号信息，并不知道设备名称，厂商(比如ALP-AL00 Build/HUAWEIALP-AL00是华为Mate 10)；故而就需要手机设备信息库
+
+
+
+##### 设备信息项目-Google Play Store Supported Devices
+
+- 来源：http://storage.googleapis.com/play_public/supported_devices.csv；示例数据
+  - Retail Branding,Marketing Name,Device,Model
+  - Huawei,Mate 10,HWALP,ALP-L09
+  - Xiaomi,MI CC 9,pyxis,MI CC 9
+- 说明：来自Google Play Store,且会定期更新，值得推荐；
+- 注意：编码使用UTF-16,编码存在有形式：Y93\xe6\xa0\x87\xe5\x87\x86\xe7\x89\x88 64G
+
+
+
+##### 设备信息项目-stevenkang/model-lib
+
+- stevenkang/model-lib：<https://github.com/stevenkang/model-lib>
+- 应当是国人维护的一个手机设备库，设备信息库不全，且有重复；可当做**补充**
+
+- 比较
+- jet-hive-udf当中的两个类UDFUserAgentParserYauaaSupportedDeviceDefault(HdfsFile)采用Yauaa作为解析useragent的主要引擎
+
+
+
+#### Useragent解析函数说明
+
+​	通过手机设备库补充+增强：厂商+设备名称信息(如)；
+
+​	注意：本项目所依赖**JAVA8+**
+
+​	已实现：解析工具(Yauaa) + 手机设备库(Google Play Store Supported Devices)；见UDFUserAgentParserYauaaSupportedDeviceDefault(HdfsFile)两个类；
+
+​	未实现：非Yauaa非Play Store的方案，都未实现完成；另基本逻辑已完成，但测试效果不好(见类UDFUserAgentParserJuanSupportDevice，UDFUserAgentParserYauaaStevenkang)
+
+
+
+#### UserAgentParser函数
+
+- 说明：使用解析工具(Yauaa) + 手机设备库(Google Play Store Supported Devices)，解析ua信息，得到MAP类型的数据；手机设备库supported_devices存储于jar的资源文件上。
+- 功能增强：DeviceVendor和DeviceModel 这2个列是新增的(相对于Yauaa)
+- 参数：ua_string [,fileds]
+  - 第1个参数：useragent值
+  - 第2个参数：解析后展示出来的字段，逗号隔开；可选；
+    - 默认值为空（展示列等价于DeviceClass,DeviceVendor,DeviceBrand,DeviceModel,DeviceName,OperatingSystemClass,OperatingSystemName,OperatingSystemVersionMajor,OperatingSystemVersion,AgentClass,AgentName,AgentVersionMajor,AgentVersion,WebviewAppName,WebviewAppVersionMajor,WebviewAppVersion）；
+    - 值为'all'(展示出所有的列)
+    - 自定义的列，如DeviceClass,DeviceVendor,DeviceBrand......形式
+- 类：com.jet.hive.udf.ipgeo.UDFUserAgentParserYauaaSupportedDeviceDefault
+- 示例: 4条ua,及其解析后内容
+
+```json
+Dalvik/2.1.0 (Linux; U; Android 5.1.1; OPPO R9 Plusm A Build/L  {"DeviceName":"Oppo R9 Plusm A","OperatingSystemName":"Android","AgentVersionMajor":"2","AgentVersion":"2.1.0","OperatingSystemVersionMajor":"5","WebviewAppName":"Unknown","WebviewAppVersion":"Unknown","DeviceModel":"R9 Plus","WebviewAppVersionMajor":"Unknown","DeviceClass":"Mobile","AgentClass":"Special","DeviceVendor":"Oppo","DeviceBrand":"Oppo","OperatingSystemClass":"Mobile","AgentName":"Dalvik","OperatingSystemVersion":"5.1.1"}
+QYPlayer/iOS/4.5.1;NetType/4G;QTP/1.10.8.1      {"DeviceName":"Unknown","OperatingSystemName":"Unknown","AgentVersionMajor":"iOS","AgentVersion":"iOS","OperatingSystemVersionMajor":"??","WebviewAppName":"Unknown","WebviewAppVersion":"Unknown","DeviceModel":"Unknown","WebviewAppVersionMajor":"Unknown","DeviceClass":"Unknown","AgentClass":"Special","DeviceVendor":"Unknown","DeviceBrand":"Unknown","OperatingSystemClass":"Unknown","AgentName":"QYPlayer","OperatingSystemVersion":"??"}
+Dalvik/2.1.0 (Linux; U; Android 9; PAR-AL00 Build/HUAWEIPAR-AL00)       {"DeviceName":"Huawei PAR-AL00","OperatingSystemName":"Android","AgentVersionMajor":"2","AgentVersion":"2.1.0","OperatingSystemVersionMajor":"9","WebviewAppName":"Unknown","WebviewAppVersion":"Unknown","DeviceModel":"nova 3","WebviewAppVersionMajor":"Unknown","DeviceClass":"Mobile","AgentClass":"Special","DeviceVendor":"Huawei","DeviceBrand":"Huawei","OperatingSystemClass":"Mobile","AgentName":"Dalvik","OperatingSystemVersion":"9"}
+live4iphone/22150 CFNetwork/978.0.7 Darwin/18.5.0       {"DeviceName":"Apple iOS Device","OperatingSystemName":"Darwin (iOS)","AgentVersionMajor":"22150","AgentVersion":"22150","OperatingSystemVersionMajor":"18","WebviewAppName":"Unknown","WebviewAppVersion":"Unknown","DeviceModel":"Unknown","WebviewAppVersionMajor":"Unknown","DeviceClass":"Mobile","AgentClass":"Mobile App","DeviceVendor":"Apple","DeviceBrand":"Apple","OperatingSystemClass":"Mobile","AgentName":"live4iphone","OperatingSystemVersion":"18.5.0"}
 ```
 
-### 示例
-```
- select pinyin('中国') => zhongguo
- select md5('aaronshan') => 95686bc0483262afe170b550dd4544d1
- select sha256('aaronshan') => d16bb375433ad383169f911afdf45e209eabfcf047ba1faebdd8f6a0b39e0a32
-```
 
-```
-select day_of_week('2016-07-12') => 2
-select day_of_year('2016-01-01') => 1
-select type_of_day('2016-10-01') => 1
-select type_of_day('2016-07-16') => 2
-select type_of_day('2016-07-15') => 3
-select type_of_day('2016-09-18') => 4
-select zodiac_cn('1989-01-08') => 魔羯座
-select zodiac_en('1989-01-08') => Capricorn
-```
 
-```
-select array_contains(array(16,12,18,9), 12) => true
-select array_equals(array(16,12,18,9), array(16,12,18,9)) => true
-select array_intersect(array(16,12,18,9,null), array(14,9,6,18,null)) => [null,9,18]
-select array_max(array(16,13,12,13,18,16,9,18)) => 18
-select array_min(array(16,12,18,9)) => 9
-select array_join(array(16,12,18,9,null), '#','=') => 16#12#18#9#=
-select array_distinct(array(16,13,12,13,18,16,9,18)) => [9,12,13,16,18]
-select array_position(array(16,13,12,13,18,16,9,18), 13) => 2
-select array_remove(array(16,13,12,13,18,16,9,18), 13) => [16,12,18,16,9,18]
-select array_reverse(array(16,12,18,9)) => [9,18,12,16]
-select array_sort(array(16,13,12,13,18,16,9,18)) => [9,12,13,13,16,16,18,18]
-select array_concat(array(16,12,18,9,null), array(14,9,6,18,null)) => [16,12,18,9,null,14,9,6,18,null]
-select array_value_count(array(16,13,12,13,18,16,9,18), 13) => 2
-select array_slice(array(16,13,12,13,18,16,9,18), -2, 3) => [9,18]
-select array_element_at(array(16,13,12,13,18,16,9,18), -1) => 18
-select array_shuffle(array(16,12,18,9))
-select sequence(1, 5) => [1, 2, 3, 4, 5]
-select sequence(5, 1) => [5, 4, 3, 2, 1]
-select sequence(1, 9, 4) => [1, 5, 9]
-select sequence('2016-04-12 00:00:00', '2016-04-14 00:00:00', 24*3600*1000) => ['2016-04-12 00:00:00', '2016-04-13 00:00:00', '2016-04-14 00:00:00']
-```
+#### UserAgentParserHdfs函数
 
-```
-select map_build(array('key1','key2'), array(16,12)) => {"key1":16,"key2":12}
-select map_concat(map_build(array('key1','key2'), array(16,12)), map_build(array('key1','key3'), array(17,18))) => {"key1":17,"key2":12,"key3":18}
-select map_element_at(map_build(array('key1','key2'), array(16,12)), 'key1') => 16
-select map_equals(map_build(array('key1','key2'), array(16,12)), map_build(array('key1','key2'), array(16,12))) => true
-```
+- 说明：使用解析工具(Yauaa) + 手机设备库(Google Play Store Supported Devices)，解析ua信息，得到MAP类型的数据；手机设备库supported_devices**使用用户hdfs上的文件**
+- 功能上与UserAgentParser基本相同
+- 参数：
+  - 3个参数，都是必选;前2个参数含义与UserAgentParser的前2个完全一样；
+  - 第3个参数：HiveQL add hdfs 语句的文件名称。如[add file hdfs://quickstart.cloudera:8020/user/hive/warehouse/func.db/xxx.csv],则此参数值为xxx.csv
+- 注意：本函数**没有**在分布式环境上测试过；请注意
 
-```
-select id_card_info('110101198901084517') => {"valid":true,"area":"东城区","province":"北京市","gender":"男","city":"北京市"}
-```
 
-```
-select json_array_get("[{\"a\":{\"b\":\"13\"}}, {\"a\":{\"b\":\"18\"}}, {\"a\":{\"b\":\"12\"}}]", 1); => {"a":{"b":"18"}}
-select json_array_get('["a", "b", "c"]', 0); => a
-select json_array_get('["a", "b", "c"]', 1); => b
-select json_array_get('["c", "b", "a"]', -1); => a
-select json_array_get('["c", "b", "a"]', -2); => b
-select json_array_get('[]', 0); => null
-select json_array_get('["a", "b", "c"]', 10); => null
-select json_array_get('["c", "b", "a"]', -10); => null
-select json_array_length("[{\"a\":{\"b\":\"13\"}}, {\"a\":{\"b\":\"18\"}}, {\"a\":{\"b\":\"12\"}}]"); => 3
-select json_array_extract("[{\"a\":{\"b\":\"13\"}}, {\"a\":{\"b\":\"18\"}}, {\"a\":{\"b\":\"12\"}}]", "$.a.b"); => ["\"13\"","\"18\"","\"12\""]
-select json_array_extract_scalar("[{\"a\":{\"b\":\"13\"}}, {\"a\":{\"b\":\"18\"}}, {\"a\":{\"b\":\"12\"}}]", "$.a.b") => ["13","18","12"]
-select json_extract("{\"a\":{\"b\":\"12\"}}", "$.a.b"); => "12"
-select json_extract_scalar("{\"a\":{\"b\":\"12\"}}", "$.a.b") => 12
-select json_extract_scalar('[1, 2, 3]', '$[2]');
-select json_extract_scalar(json, '$.store.book[0].author');
-select json_size('{"x": {"a": 1, "b": 2}}', '$.x'); => 2
-select json_size('{"x": [1, 2, 3]}', '$.x'); => 3
-select json_size('{"x": {"a": 1, "b": 2}}', '$.x.a'); => 0
-```
 
-```
-select gcj_to_bd(39.915, 116.404) => {"lng":116.41036949371029,"lat":39.92133699351022}
-select bd_to_gcj(39.915, 116.404) => {"lng":116.39762729119315,"lat":39.90865673957631}
-select wgs_to_gcj(39.915, 116.404) => {"lng":116.41024449916938,"lat":39.91640428150164}
-select gcj_to_wgs(39.915, 116.404) => {"lng":116.39775550083061,"lat":39.91359571849836}
-select gcj_extract_wgs(39.915, 116.404) => {"lng":116.39775549316407,"lat":39.913596801757805}
-```
+### 4. 日期计算函数
 
-```
-select url_encode('http://shanruifeng.cc/') => http%3A%2F%2Fshanruifeng.cc%2F
-```
+​	日期计算函数，主要使用场景：HiveQL提供的原生日期函数，进行复杂日期计算，需要进行多次计算，不太方便；比如计算上月最后一天，本月最后一天等；
 
-```
-select cosine_similarity(map_build(array['a'], array[1.0]), map_build(array['a'], array[2.0])); => 1.0
-```
+​	核心理解下DateDelta函数，其他5个函数，与其类似。
+
+
+
+#### DateDelta函数
+
+##### 功能介绍
+
+- 功能：参考python relativedelta 实现方式, 实现date/datetime 的日期加减计算(包括年月日时分秒)；比如计算上月最后一天，本月最后一天等；
+- 参数：(date,offsets [,format])；前2个必选；第3可选
+  - 第1个参数date: 
+    - 格式支持的有"yyyyMMdd, yyyy-MM-dd, yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss"；
+    - 示例'20180102','20180102030405','2018-01-02 03:04:05'
+  - 第2个参数offsets：
+    - 偏移量，格式如M1=D1,M2=D2,...... , 分隔符为',' 和'='；支持多个偏移，从左到右依次计算偏移；每一个偏移的含义如下：
+    - M: year,month,day,hour,minute,second(或y,m,d,h,n,s)
+    - D: +N,-N,N(N为数值)；解释+2，-2分别为加或减2天、2为目标赋值第2天(当M=day时)
+    - 示例
+      - 'year=+2,month=8,day=-16' 等价于 'y=+2,m=8,d=-16'; 含义为依次年+2，月为8，日期减16
+    - 特殊
+      - 日期加减简单模式：DateDelta('20180102','+3')=DateDelta('20180102','day=+3'), DateDelta('20180102','3')=DateDelta('20180102','day=3');
+  - 第3个参数\[Format\]：
+    - 可选；目标输出值的Date/Datetime格式，示例"yyyyMMdd, yyyy-MM-dd, yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss"
+    - 若无此参数，输出值格式与第1个参数date格式相同；
+
+##### 示例
+
+| 说明                          | 代码                                                         | 结果                |
+| ----------------------------- | ------------------------------------------------------------ | ------------------- |
+| day+3，简易模型               | SELECT DateDelta('20180102','+3')                            | 20180105            |
+| day+3，原日期格式不变         | SELECT DateDelta('20180102','day=+3')                        | 20180105            |
+| day+3，原日期格式不变         | SELECT DateDelta('2018-01-02','day=+3')                      | 2018-01-05          |
+| datetime+3day，原日期格式不变 | SELECT DateDelta('20180102030405','day=+3')                  | 20180105030405      |
+| datetime+3day，原日期格式不变 | SELECT DateDelta('2018-01-02 03:04:05','day=+3')             | 2018-01-05 03:04:05 |
+| 今年最后一天,多次计算         | SELECT DateDelta('2018-09-06','year=+1,month=1,day=1,day=-1') | 2018-12-31          |
+| 今年最后一天,多次计算         | SELECT DateDelta('2018-09-06','y=+1,m=1,d=1,d=-1')           | 2018-12-31          |
+| 上月最后一天                  | SELECT DateDelta('20180906','day=1,day=-1')                  | 20180831            |
+| 上月最后一天，改变输出格式    | SELECT DateDelta('20180906','day=1,day=-1','**yyyy-MM-dd**') | 2018-08-31          |
+
+
+
+#### CurrentDateTimeFormatDelta函数
+
+##### 功能介绍
+
+- 功能：实现当前系统日期加减计算(包括年月日时分秒)；与DateDelta功能基本相同，只是把第1个日期换成系统当前时间；
+- 参数：(offsets [,format])；前2个必选；第3可选
+  - 第1个参数offsets：与DateDelta函数的第2个参数含义相同
+  - 第2个参数[format]：
+    - 可选；目标输出值的Date/Datetime格式，示例"yyyyMMdd, yyyy-MM-dd, yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss"
+    - 若无此参数，输出值格式为"yyyy-MM-dd HH:mm:ss"；
+
+##### 示例
+
+​	若当前系统时间为“2019-02-01 11:06:31”
+
+| 说明     | 代码                                                         | 结果           |
+| -------- | ------------------------------------------------------------ | -------------- |
+| now+3day | SELECT CurrentDateTimeFormatDelta('+3','yyyyMMdd')           | 20190204       |
+| now+3day | SELECT CurrentDateTimeFormatDelta('day=+3','yyyyMMddHHmmss') | 20190204110631 |
+|          |                                                              |                |
+
+
+
+#### CurrentDateDelta函数
+
+##### 功能
+
+- 功能：实现当前系统日期加减计算(包括年月日)；与CurrentDateTimeFormatDelta类似，输出目标格式为yyyy-MM-dd；等价于CurrentDateTimeFormatDelta((offsets,'yyyy-MM-dd'))
+- 参数：(offsets)；
+  - 第1个参数offsets：与DateDelta函数的第2个参数含义相同
+
+##### 示例
+
+​	若当前系统时间为“2019-02-01 11:06:31”
+
+| DESC                  | CODE                                       | RESULT     |
+| --------------------- | ------------------------------------------ | ---------- |
+| now+3day              | SELECT CurrentDateDelta('+3')              | 2019-02-04 |
+| now+3day              | SELECT CurrentDateDelta('day=+3')          | 2019-02-04 |
+| end day of this month | SELECT CurrentDateDelta('month=+1,day=-1') | 2019-02-28 |
+
+
+
+#### CurrentDateDelta2函数
+
+##### 功能
+
+- 功能：实现当前系统日期加减计算(包括年月日)；与CurrentDateTimeFormatDelta类似，输出目标格式为yyyyMMdd；等价于CurrentDateTimeFormatDelta((offsets,'yyyyMMdd'))
+- 参数：(offsets)；
+  - 第1个参数offsets：与DateDelta函数的第2个参数含义相同
+
+##### 示例
+
+​	若当前系统时间为“2019-02-01 11:06:31”
+
+| DESC                  | CODE                                        | RESULT   |
+| --------------------- | ------------------------------------------- | -------- |
+| now+3day              | SELECT CurrentDateDelta2('+3')              | 20190204 |
+| now+3day              | SELECT CurrentDateDelta2('day=+3')          | 20190204 |
+| end day of this month | SELECT CurrentDateDelta2('month=+1,day=-1') | 20190228 |
+
+
+
+#### CurrentDateTimeDelta函数
+
+##### 功能
+
+- 功能：实现当前系统日期加减计算(包括年月日时分钞)；与CurrentDateTimeFormatDelta类似，输出目标格式为yyyyMMdd；等价于CurrentDateTimeFormatDelta((offsets,'yyyy-MM-dd hh:mm:ss'))
+- 参数：(offsets)；
+  - 第1个参数offsets：与DateDelta函数的第2个参数含义相同
+
+##### 示例
+
+​	若当前系统时间为“2019-02-01 11:06:31”
+
+| DESC                  | CODE                                           | RESULT              |
+| --------------------- | ---------------------------------------------- | ------------------- |
+| now+3day              | SELECT CurrentDateTimeDelta('+3')              | 2019-02-04 03:04:05 |
+| now+3day              | SELECT CurrentDateTimeDelta('day=+3')          | 2019-02-04 03:04:05 |
+| end day of this month | SELECT CurrentDateTimeDelta('month=+1,day=-1') | 2019-02-28 03:04:05 |
+
+
+
+#### CurrentDateTimeDelta2函数
+
+##### 功能
+
+- 功能：实现当前系统日期加减计算(包括年月日时分钞)；与CurrentDateTimeFormatDelta类似，输出目标格式为yyyyMMdd；等价于CurrentDateTimeFormatDelta((offsets,'yyyyMMddhhmmss'))
+- 参数：(offsets)；
+  - 第1个参数offsets：与DateDelta函数的第2个参数含义相同
+
+##### 示例
+
+​	若当前系统时间为“2019-02-01 11:06:31”
+
+| DESC                  | CODE                                            | RESULT         |
+| --------------------- | ----------------------------------------------- | -------------- |
+| now+3day              | SELECT CurrentDateTimeDelta2('+3')              | 20190204030405 |
+| now+3day              | SELECT CurrentDateTimeDelta2('day=+3')          | 20190204030405 |
+| end day of this month | SELECT CurrentDateTimeDelta2('month=+1,day=-1') | 20190228030405 |
+

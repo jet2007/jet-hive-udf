@@ -11,13 +11,14 @@ import org.apache.hadoop.io.Text;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.jet.hive.udf.useragent.UDFUserAgentParserYauaaSupportedDevice;
+import com.jet.hive.udf.useragent.UDFUserAgentParserYauaaSupportedDeviceDefault;
+
 
 
 public class UDFUserAgentParserSupportedDeviceTest {
 
 	public void uat(String userAgentString) throws HiveException {        
-		UDFUserAgentParserYauaaSupportedDevice udf=new UDFUserAgentParserYauaaSupportedDevice();
+		UDFUserAgentParserYauaaSupportedDeviceDefault udf=new UDFUserAgentParserYauaaSupportedDeviceDefault();
         ObjectInspector ua_type = PrimitiveObjectInspectorFactory.javaStringObjectInspector;
         ObjectInspector[] arguments={ua_type};
 		udf.initialize(arguments);
@@ -38,7 +39,7 @@ public class UDFUserAgentParserSupportedDeviceTest {
 	}
 		
 	public void uat(String userAgentString,String fields) throws HiveException {        
-		UDFUserAgentParserYauaaSupportedDevice udf=new UDFUserAgentParserYauaaSupportedDevice();
+		UDFUserAgentParserYauaaSupportedDeviceDefault udf=new UDFUserAgentParserYauaaSupportedDeviceDefault();
         ObjectInspector ua_type = PrimitiveObjectInspectorFactory.javaStringObjectInspector;
         ObjectInspector fields_type = PrimitiveObjectInspectorFactory.javaStringObjectInspector;
         ObjectInspector[] arguments={ua_type,fields_type};

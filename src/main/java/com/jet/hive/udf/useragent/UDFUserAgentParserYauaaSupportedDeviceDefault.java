@@ -1,20 +1,3 @@
-/*
- * Yet Another UserAgent Analyzer
- * Copyright (C) 2013-2019 Niels Basjes
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.jet.hive.udf.useragent;
 
 import nl.basjes.parse.useragent.UserAgentAnalyzer;
@@ -41,18 +24,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * 参考nl.basjes.parse.useragent.hive.UserAgentParse
- *
- */
 
 @Description(
     name = "UserAgentParse",
-    value = "_FUNC_(str,[str],[str]) - Parses the UserAgent into a map type.",
+    value = "_FUNC_(str,[str],[str]) - Parses the UserAgent into a map type.\n" +
+    "Required Env: Java 1.8+.",
     extended = "Example:\n" +
         "> SELECT UserAgentParse(useragent), \n" +
         "         UserAgentParse(useragent,'all'), \n" +
-        "  FROM   useragent_table;\n" )
+        "  FROM   useragent_table;\n" ) 
 public class UDFUserAgentParserYauaaSupportedDeviceDefault extends GenericUDF {
 
 	//private PrimitiveObjectInspector inputOI;
@@ -67,21 +47,16 @@ public class UDFUserAgentParserYauaaSupportedDeviceDefault extends GenericUDF {
         if (args.length < 1) {
             throw new UDFArgumentException("The argument list must be exactly 1 or 2  element");
         }
-        System.out.println("###############################10000.001");
         if (userAgentAnalyzer == null) {
-        	System.out.println("###############################10000.001-1");
             userAgentAnalyzer = UserAgentAnalyzer
                 .newBuilder()
                 .hideMatcherLoadStats()
                 .delayInitialization()
                 .build();
         }
-        System.out.println("###############################10000.002");
         if (supportedDevicesParser == null) {
-        	System.out.println("###############################10000.002-2");
         	supportedDevicesParser = new GooglePlayStoreSupportedDeviceBuild();
         }
-        System.out.println("###############################10000.003");
         
         // Initialize
         if (args.length == 1) {
@@ -105,9 +80,7 @@ public class UDFUserAgentParserYauaaSupportedDeviceDefault extends GenericUDF {
     public Object evaluate(DeferredObject[] args) throws HiveException,UDFArgumentException {
         //根据第2个参数值，Initialize
         if(isNonInit){//未被初始化过，有2个参数的情况
-        	System.out.println("###############################10000.004");
         	if(args.length>1){ //根据第2个参数，得到map的key列表
-        		System.out.println("###############################10000.004-2");
         		String inputFields = stringOI.getPrimitiveJavaObject(args[1].get());
         		this.fieldNames=getFieldNames(inputFields);
         	}

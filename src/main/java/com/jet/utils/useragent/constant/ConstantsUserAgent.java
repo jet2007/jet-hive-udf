@@ -12,8 +12,6 @@ public class ConstantsUserAgent {
 	public static final String YAUAA_DEVICE_MODEL_NAME= "DeviceModel";
 	public static final String YAUAA_DEVICE_VENDOR= "DeviceVendor";
 	
-	
-	
 	public static final String SUPPORT_DEVICE_RESOURCE_FILE="supported_devices.csv";
 	public static final String JUAN_AGENT_NAME="AgentName";
 	public static final String JUAN_AGENT_VENDOR="AgentVendor";

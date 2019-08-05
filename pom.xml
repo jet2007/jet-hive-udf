@@ -6,7 +6,7 @@
 
     <groupId>com.github.jet</groupId>
     <artifactId>jet-hive-udf</artifactId>
-    <version>0.1.0</version>
+    <version>1.0.0</version>
 
     <name>jet-hive-udf</name>
     <url>https://github.com/jet2007/jet-hive-udf</url>

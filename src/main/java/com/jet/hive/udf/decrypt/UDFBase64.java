@@ -5,7 +5,6 @@ import org.apache.hadoop.hive.ql.exec.UDF;
 import org.apache.hadoop.io.Text;
 
 import com.jet.utils.enDeCrypt.DecryptUtils;
-import com.jet.utils.enDeCrypt.EncryptUtils;
 
 /**
  * @author caihm
