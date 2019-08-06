@@ -16,13 +16,11 @@ jet-hive-udf 包含了一些有用的hive udf函数，包含日期计算，ip,us
 
 ### 1. 安装依赖
 
-本项目仅需要maven环境；
+本项目仅需要maven环境；不需要手动增加add jar包；
 
-```
-# 若要手动加入某个包，如jdo2-api-2.3-ec.jar 在maven中央仓库中已经不可用, 因此我们不得不自己下载并安装到本地的maven库中. 命令如下：
-wget http://www.datanucleus.org/downloads/maven2/javax/jdo/jdo2-api/2.3-ec/jdo2-api-2.3-ec.jar -O ~/jdo2-api-2.3-ec.jar
-mvn install:install-file -DgroupId=javax.jdo -DartifactId=jdo2-api -Dversion=2.3-ec -Dpackaging=jar -Dfile=~/jdo2-api-2.3-ec.jar
-```
+若要手动add jar包，请参考lib子目录的示例脚本
+
+
 
 ### 2. 用mvn打包 
 
@@ -164,12 +162,12 @@ create temporary function CurrentDateTimeDelta2 as 'com.jet.hive.udf.date.Curren
 | 解密      | deDes(string [,string]) -> string                    | des解密                                                      |
 | IP        | ipgeo(ip_string) -> Map                              | 解析ip->国家,地区,省份,城市,ISP                              |
 | IP        | ipgeo2(ip_string) -> Struct                          | 解析ip->国家,地区,省份,城市,ISP                              |
-| useragent | UserAgentParse(ua_string [,fileds])                  | 解析useragent->设备,使用jar资源文件,浏览器,操作系统等；java8+ |
-| useragent | UserAgentParseHdfs(ua_string ,fileds,hdfs_fileanme ) | 解析useragent,使用hdfs文件->设备,浏览器,操作系统等;java8+    |
+| useragent | UserAgentParse(ua_string [,fileds])                  | 解析useragent->设备,使用jar资源文件,浏览器,操作系统等；**java8+** |
+| useragent | UserAgentParseHdfs(ua_string ,fileds,hdfs_fileanme ) | 解析useragent,使用hdfs文件->设备,浏览器,操作系统等; **java8+** |
 | 日期计算  | DateDelta(date,offsets [,format])                    | 日期加减计算(包括年月日时分秒)                               |
 | 日期计算  | CurrentDateTimeFormatDelta                           | 基于当前系统时间的日期加减计算(包括年月日时分秒)             |
 | 日期计算  | CurrentDateDelta                                     | 基于当前系统时间的日期加减计算(包括年月日)，日期格式yyyy-MM-dd |
-| 日期计算  | *****CurrentDateDelta2                               | 基于当前系统时间的日期加减计算(包括年月日)，日期格式yyyyMMdd |
+| 日期计算  | CurrentDateDelta2                                    | 基于当前系统时间的日期加减计算(包括年月日)，日期格式yyyyMMdd |
 | 日期计算  | CurrentDateTimeDelta                                 | 基于当前系统时间的日期加减计算(包括年月日时分秒)，格式yyyy-MM-dd hh:mm:ss |
 | 日期计算  | CurrentDateTimeDelta2                                | 基于当前系统时间的日期加减计算(包括年月日时分秒)，格式yyyyMMddhhmmss |
 
@@ -272,7 +270,7 @@ UserAgent解析使用了第3个的相关项目，介绍如下
 - stevenkang/model-lib：<https://github.com/stevenkang/model-lib>
 - 应当是国人维护的一个手机设备库，设备信息库不全，且有重复；可当做**补充**
 
-- 比较
+- 处理方式：参考doc/mobile-model.xlsx进行修复
 - jet-hive-udf当中的两个类UDFUserAgentParserYauaaSupportedDeviceDefault(HdfsFile)采用Yauaa作为解析useragent的主要引擎
 
 
@@ -316,7 +314,8 @@ live4iphone/22150 CFNetwork/978.0.7 Darwin/18.5.0       {"DeviceName":"Apple iOS
 - 说明：使用解析工具(Yauaa) + 手机设备库(Google Play Store Supported Devices)，解析ua信息，得到MAP类型的数据；手机设备库supported_devices**使用用户hdfs上的文件**
 - 功能上与UserAgentParser基本相同
 - 参数：
-  - 3个参数，都是必选;前2个参数含义与UserAgentParser的前2个完全一样；
+  - 3个参数都必选;
+  - 前2个参数含义与UserAgentParser的前2个完全一样；
   - 第3个参数：HiveQL add hdfs 语句的文件名称。如[add file hdfs://quickstart.cloudera:8020/user/hive/warehouse/func.db/xxx.csv],则此参数值为xxx.csv
 - 注意：本函数**没有**在分布式环境上测试过；请注意
 
@@ -355,14 +354,15 @@ live4iphone/22150 CFNetwork/978.0.7 Darwin/18.5.0       {"DeviceName":"Apple iOS
 
 | 说明                          | 代码                                                         | 结果                |
 | ----------------------------- | ------------------------------------------------------------ | ------------------- |
-| day+3，简易模型               | SELECT DateDelta('20180102','+3')                            | 20180105            |
+| day+3，简易模式               | SELECT DateDelta('20180102','+3')                            | 20180105            |
+| day=3，简易模式               | SELECT DateDelta('20180102','3')                             | 20180103            |
 | day+3，原日期格式不变         | SELECT DateDelta('20180102','day=+3')                        | 20180105            |
 | day+3，原日期格式不变         | SELECT DateDelta('2018-01-02','day=+3')                      | 2018-01-05          |
 | datetime+3day，原日期格式不变 | SELECT DateDelta('20180102030405','day=+3')                  | 20180105030405      |
 | datetime+3day，原日期格式不变 | SELECT DateDelta('2018-01-02 03:04:05','day=+3')             | 2018-01-05 03:04:05 |
 | 今年最后一天,多次计算         | SELECT DateDelta('2018-09-06','year=+1,month=1,day=1,day=-1') | 2018-12-31          |
 | 今年最后一天,多次计算         | SELECT DateDelta('2018-09-06','y=+1,m=1,d=1,d=-1')           | 2018-12-31          |
-| 上月最后一天                  | SELECT DateDelta('20180906','day=1,day=-1')                  | 20180831            |
+| 上月最后一天,多次计算         | SELECT DateDelta('20180906','day=1,day=-1')                  | 20180831            |
 | 上月最后一天，改变输出格式    | SELECT DateDelta('20180906','day=1,day=-1','**yyyy-MM-dd**') | 2018-08-31          |
 
 
@@ -372,7 +372,7 @@ live4iphone/22150 CFNetwork/978.0.7 Darwin/18.5.0       {"DeviceName":"Apple iOS
 - 功能介绍
 
 - 功能：实现当前系统日期加减计算(包括年月日时分秒)；与DateDelta功能基本相同，只是把第1个日期换成系统当前时间；
-- 参数：(offsets [,format])；前2个必选；第3可选
+- 参数：(offsets [,format])；第1个必选；第2可选
   - 第1个参数offsets：与DateDelta函数的第2个参数含义相同
   - 第2个参数[format]：
     - 可选；目标输出值的Date/Datetime格式，示例"yyyyMMdd, yyyy-MM-dd, yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss"
