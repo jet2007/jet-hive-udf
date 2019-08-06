@@ -35,9 +35,10 @@ public class UserAgentAnalyzerYauaaSupportedDevicesUtils {
 		// 以下为自定义的修改输出内容,若有修改，到此处来哦
 		// 解析厂商，品牌，型号
 		String deviceClass = target.get(UserAgent.DEVICE_CLASS);
+		String yauaaUserAgentDeviceName = target.get(UserAgent.DEVICE_NAME);
+		String yauaaUserAgentDeviceBrand = target.get(UserAgent.DEVICE_BRAND);
 		if(deviceClass.equals("Phone") || deviceClass.equals("Tablet") ||deviceClass.equals("Mobile") ){//只针对，下面的场景进行处理
-			String yauaaUserAgentDeviceName = target.get(UserAgent.DEVICE_NAME);
-			String yauaaUserAgentDeviceBrand = target.get(UserAgent.DEVICE_BRAND);
+			
 			
 			GooglePlayStoreSupportedDevice supportedDevice = supportedDevicesParser.getSupportDeviceBy(yauaaUserAgentDeviceName, yauaaUserAgentDeviceBrand);
 			
@@ -46,15 +47,13 @@ public class UserAgentAnalyzerYauaaSupportedDevicesUtils {
 				target.put(ConstantsUserAgent.JUAN_DEVICE_MODEL_NAME, supportedDevice.getMarketingName());//型号
 			}else{
 				target.put(ConstantsUserAgent.JUAN_DEVICE_VENDOR, yauaaUserAgentDeviceBrand);
-				target.put(ConstantsUserAgent.JUAN_DEVICE_MODEL_NAME, UserAgent.UNKNOWN_VALUE);
+				target.put(ConstantsUserAgent.JUAN_DEVICE_MODEL_NAME, yauaaUserAgentDeviceName);
 			}
 		}
 		else{
 			target.put(ConstantsUserAgent.JUAN_DEVICE_VENDOR, target.get(UserAgent.DEVICE_BRAND));
-			target.put(ConstantsUserAgent.JUAN_DEVICE_MODEL_NAME, UserAgent.UNKNOWN_VALUE);
+			target.put(ConstantsUserAgent.JUAN_DEVICE_MODEL_NAME, yauaaUserAgentDeviceName);
 		}
-
-		 
 		return target;
     }
 	

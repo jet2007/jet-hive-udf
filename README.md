@@ -290,14 +290,34 @@ UserAgent解析使用了第3个的相关项目，介绍如下
 #### UserAgentParser函数
 
 - 说明：使用解析工具(Yauaa) + 手机设备库(Google Play Store Supported Devices)，解析ua信息，得到MAP类型的数据；手机设备库supported_devices存储于jar的资源文件上。
-- 功能增强：DeviceVendor和DeviceModel 这2个列是新增的(相对于Yauaa)
+
+- 功能增强：DeviceVendor和DeviceModel 这2个列是新增的(相对于原生Yauaa项目的udf)；实现说明
+
+  -  当DeviceClass in(Mobile,Phone,Tablet)且DeviceName与手机设备库当中的某个手机型号“**匹配**”了；详细匹配规则参见GooglePlayStoreSupportedDeviceBuild的getSupportDeviceBy方法
+
+    ```
+    	 配置规则：
+         * 		1.型号精确匹配且厂商匹配
+    	 *      2.型号精确匹配且厂商不匹配，型号字符长度>1
+    	 *      3.型号一般匹配且厂商匹配
+    	 *      4.型号一般匹配且厂商不匹配，型号字符长度>2
+    ```
+
+    - “**匹配上**”
+      - DeviceVendor和DeviceModel取手机设备库上的值
+    - “**不匹配**”
+      - DeviceVendor和DeviceModel取DeviceBrand和DeviceName的值
+
 - 参数：ua_string [,fileds]
   - 第1个参数：useragent值
   - 第2个参数：解析后展示出来的字段，逗号隔开；可选；
-    - 默认值为空（展示列等价于DeviceClass,DeviceVendor,DeviceBrand,DeviceModel,DeviceName,OperatingSystemClass,OperatingSystemName,OperatingSystemVersionMajor,OperatingSystemVersion,AgentClass,AgentName,AgentVersionMajor,AgentVersion,WebviewAppName,WebviewAppVersionMajor,WebviewAppVersion）；
-    - 值为'all'(展示出所有的列)
+    - 默认值为空（等价于‘default’,也等价于DeviceClass,DeviceVendor,DeviceBrand,DeviceModel,DeviceName,OperatingSystemClass,OperatingSystemName,OperatingSystemVersionMajor,OperatingSystemVersion,AgentClass,AgentName,AgentVersionMajor,AgentVersion,WebviewAppName,WebviewAppVersionMajor,WebviewAppVersion）；
+    - 值为'all'(展示出所有的列,约有50，60列)
     - 自定义的列，如DeviceClass,DeviceVendor,DeviceBrand......形式
+    - 说明：一般情况default可满足常规的需求
+
 - 类：com.jet.hive.udf.ipgeo.UDFUserAgentParserYauaaSupportedDeviceDefault
+
 - 示例: 4条ua,及其解析后内容
 
 ```json
@@ -312,7 +332,7 @@ live4iphone/22150 CFNetwork/978.0.7 Darwin/18.5.0       {"DeviceName":"Apple iOS
 #### UserAgentParserHdfs函数
 
 - 说明：使用解析工具(Yauaa) + 手机设备库(Google Play Store Supported Devices)，解析ua信息，得到MAP类型的数据；手机设备库supported_devices**使用用户hdfs上的文件**
-- 功能上与UserAgentParser基本相同
+- 功能上与UserAgentParser基本相同；只是采用资源文件方式不同
 - 参数：
   - 3个参数都必选;
   - 前2个参数含义与UserAgentParser的前2个完全一样；
