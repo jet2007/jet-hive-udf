@@ -39,6 +39,51 @@ public class DateUtils {
 		return date;
 	}
 	
+	
+	
+	/**
+	 * parse input value(String) to java Date 
+	 * @param dateStr dateStr date format String(Format,yyyyMMddHHmmss,yyyy-MM-dd HH:mm:ss,yyyyMMdd,yyyy-MM-dd)
+	 * @return Date
+	 */
+	public static Date parse(String dateStr){
+		String formatStr=guessDateFormat(dateStr);
+		if(formatStr==null){
+			return null;
+		}else{
+			return parse(dateStr,formatStr);
+		}
+	}
+	
+	/**
+	 * 猜测输入date string的date format,支持(Format,yyyyMMddHHmmss,yyyy-MM-dd HH:mm:ss,yyyyMMdd,yyyy-MM-dd)
+	 * @param dateStr
+	 * @return format或null值
+	 */
+	public static String guessDateFormat(String dateStr){
+		String ds = dateStr.replace(" ", "").replace("-", "").replace(":", "");
+		String formatStr=null;
+		boolean f2 = dateStr.contains(" ") || dateStr.contains(":") || dateStr.contains("-"); // 包含[:-空格]任何一个
+		if(ds.length()==8){//日期格式
+			if (f2){
+				formatStr="yyyy-MM-dd";
+			}
+			else{
+				formatStr="yyyyMMdd";
+			}
+		}
+		else if(ds.length()==14){//日期+时间格式
+			if (f2){
+				formatStr="yyyy-MM-dd HH:mm:ss";
+			}
+			else{
+				formatStr="yyyyMMddHHmmss";
+			}
+		}
+		return formatStr;
+	}
+	
+	
 	/**
 	 * 仿python relativedelta实现日期相加操作,返回String
 	 * 
